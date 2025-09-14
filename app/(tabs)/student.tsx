@@ -78,9 +78,15 @@ export default function StudentScreen() {
     {/* KEEP ALL YOUR EXISTING FUNCTIONALITY - UNCHANGED */}
     {/* QR Scanner Section */}
     <View style={styles.section}>
-      <Text style={styles.sectionTitle}>Mark Attendance</Text>
-      <QRScanner onAttendanceMarked={handleAttendanceMarked} />
-    </View>
+        <Text style={styles.sectionTitle}>Mark Attendance</Text>
+        {user && (
+          <QRScanner 
+            onAttendanceMarked={handleAttendanceMarked} 
+            user={{ name: user.name, id: user.id }}
+          />
+        )}
+      </View>
+
 
     {/* My Attendance Records */}
     {myAttendance.length > 0 && (

@@ -1,18 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Alert, TouchableOpacity, TextInput } from 'react-native';
-import { CameraView, Camera } from 'expo-camera';
+import { Camera, CameraView } from 'expo-camera';
+import React, { useEffect, useState } from 'react';
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { decryptData, isQRValid } from '../utils/encryption';
-import { saveAttendance, AttendanceRecord } from '../utils/storage';
+import { AttendanceRecord, saveAttendance } from '../utils/storage';
 
 interface QRScannerProps {
   onAttendanceMarked: (record: AttendanceRecord) => void;
+  user: { name: string; id: string }; // Add user prop
 }
 
-export const QRScanner: React.FC<QRScannerProps> = ({ onAttendanceMarked }) => {
+export const QRScanner: React.FC<QRScannerProps> = ({ onAttendanceMarked, user }) => {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [scanned, setScanned] = useState<boolean>(false);
-  const [studentId, setStudentId] = useState<string>('');
-  const [studentName, setStudentName] = useState<string>('');
   const [isScanning, setIsScanning] = useState<boolean>(false);
 
   useEffect(() => {
@@ -33,15 +32,9 @@ export const QRScanner: React.FC<QRScannerProps> = ({ onAttendanceMarked }) => {
   const handleBarcodeScanned = async ({ type, data }: { type: string; data: string }) => {
     if (scanned) return;
     
-    console.log('QR Code scanned:', data); // Debug log
+    console.log('QR Code scanned:', data);
     setScanned(true);
     setIsScanning(false);
-
-    if (!studentId || !studentName) {
-      Alert.alert('Error', 'Please enter your Student ID and Name first');
-      setScanned(false);
-      return;
-    }
 
     try {
       // Parse the QR data
@@ -59,7 +52,7 @@ export const QRScanner: React.FC<QRScannerProps> = ({ onAttendanceMarked }) => {
         return;
       }
 
-      console.log('Encrypted data:', encryptedData); // Debug log
+      console.log('Encrypted data:', encryptedData);
       const decryptedData = decryptData(decodeURIComponent(encryptedData));
       
       if (!decryptedData) {
@@ -75,11 +68,11 @@ export const QRScanner: React.FC<QRScannerProps> = ({ onAttendanceMarked }) => {
         return;
       }
 
-      // Create attendance record
+      // Create attendance record using logged-in user's information
       const attendanceRecord: AttendanceRecord = {
-        id: `${studentId}_${decryptedData.lectureId}_${Date.now()}`,
-        studentId,
-        studentName,
+        id: `${user.id}_${decryptedData.lectureId}_${Date.now()}`,
+        studentId: user.id,        // Use logged-in user's ID
+        studentName: user.name,    // Use logged-in user's name
         lectureId: decryptedData.lectureId,
         lectureName: decryptedData.lectureName,
         timestamp: Date.now(),
@@ -104,10 +97,6 @@ export const QRScanner: React.FC<QRScannerProps> = ({ onAttendanceMarked }) => {
   };
 
   const startScanning = () => {
-    if (!studentId || !studentName) {
-      Alert.alert('Required Fields', 'Please enter your Student ID and Name before scanning');
-      return;
-    }
     setIsScanning(true);
     setScanned(false);
   };
@@ -138,19 +127,11 @@ export const QRScanner: React.FC<QRScannerProps> = ({ onAttendanceMarked }) => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter Student ID"
-          value={studentId}
-          onChangeText={setStudentId}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Enter Student Name"
-          value={studentName}
-          onChangeText={setStudentName}
-        />
+      {/* Show current user info instead of input fields */}
+      <View style={styles.userInfoContainer}>
+        <Text style={styles.userInfoText}>
+          📋 Marking attendance for: {user.name} (ID: {user.id})
+        </Text>
       </View>
 
       {!isScanning ? (
@@ -219,17 +200,19 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
   },
-  inputContainer: {
+  // Updated: User info display instead of input fields
+  userInfoContainer: {
+    backgroundColor: '#f0f8ff',
+    padding: 15,
+    borderRadius: 10,
     marginBottom: 20,
+    borderLeftWidth: 4,
+    borderLeftColor: '#007AFF',
   },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 10,
+  userInfoText: {
     fontSize: 16,
-    backgroundColor: 'white',
+    color: '#333',
+    fontWeight: '500',
   },
   scanButton: {
     backgroundColor: '#007AFF',
@@ -250,7 +233,7 @@ const styles = StyleSheet.create({
     position: 'relative',
     borderRadius: 10,
     overflow: 'hidden',
-    minHeight: 400, // Fixed height to ensure visibility
+    minHeight: 400,
   },
   camera: {
     flex: 1,
