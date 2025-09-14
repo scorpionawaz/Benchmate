@@ -1,59 +1,94 @@
-import React from 'react';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { Link, Tabs } from 'expo-router';
-import { Pressable } from 'react-native';
-
-import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { useClientOnlyValue } from '@/components/useClientOnlyValue';
-
-// You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
-function TabBarIcon(props: {
-  name: React.ComponentProps<typeof FontAwesome>['name'];
-  color: string;
-}) {
-  return <FontAwesome size={28} style={{ marginBottom: -3 }} {...props} />;
-}
+import { Ionicons } from '@expo/vector-icons';
+import { Redirect, Tabs } from 'expo-router';
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { useAuth } from '../../contexts/AuthContext';
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
+  const { isAuthenticated, userRole, isLoading } = useAuth();
 
-  return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        // Disable the static render of the header on web
-        // to prevent a hydration error in React Navigation v6.
-        headerShown: useClientOnlyValue(false, true),
-      }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Tab One',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
-          headerRight: () => (
-            <Link href="/modal" asChild>
-              <Pressable>
-                {({ pressed }) => (
-                  <FontAwesome
-                    name="info-circle"
-                    size={25}
-                    color={Colors[colorScheme ?? 'light'].text}
-                    style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
-                  />
-                )}
-              </Pressable>
-            </Link>
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="two"
-        options={{
-          title: 'Tab Two',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
-        }}
-      />
-    </Tabs>
-  );
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#2f95dc" />
+        <Text style={styles.loadingText}>Loading...</Text>
+      </View>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <Redirect href="/login" />;
+  }
+
+  // Render tabs based on user role
+  if (userRole === 'teacher') {
+    return (
+      <Tabs
+        screenOptions={{
+          tabBarActiveTintColor: '#2f95dc',
+          headerStyle: {
+            backgroundColor: '#f0f0f0',
+          },
+        }}>
+        <Tabs.Screen
+          name="teacher"
+          options={{
+            title: 'Teacher Dashboard',
+            tabBarIcon: ({ color, focused }) => (
+              <Ionicons name={focused ? 'school' : 'school-outline'} color={color} size={24} />
+            ),
+          }}
+        />
+        {/* Hide student tab for teachers */}
+        <Tabs.Screen
+          name="student"
+          options={{
+            href: null, // This hides the tab
+          }}
+        />
+      </Tabs>
+    );
+  } else if (userRole === 'student') {
+    return (
+      <Tabs
+        screenOptions={{
+          tabBarActiveTintColor: '#2f95dc',
+          headerStyle: {
+            backgroundColor: '#f0f0f0',
+          },
+        }}>
+        <Tabs.Screen
+          name="student"
+          options={{
+            title: 'Student Portal',
+            tabBarIcon: ({ color, focused }) => (
+              <Ionicons name={focused ? 'person' : 'person-outline'} color={color} size={24} />
+            ),
+          }}
+        />
+        {/* Hide teacher tab for students */}
+        <Tabs.Screen
+          name="teacher"
+          options={{
+            href: null, // This hides the tab
+          }}
+        />
+      </Tabs>
+    );
+  }
+
+  return <Redirect href="/login" />;
 }
+
+const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f5f5f5',
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: '#666',
+  },
+});
