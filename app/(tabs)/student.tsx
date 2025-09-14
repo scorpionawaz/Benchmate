@@ -62,7 +62,7 @@ export default function StudentScreen() {
     <View style={styles.header}>
       <View style={styles.headerContent}>
         <View>
-          <Text style={styles.title}>Student Portal</Text>
+          <Text style={styles.title}>Student </Text>
           {user && (
             <Text style={styles.welcomeText}>
               Welcome, {user.name} (ID: {user.id})
