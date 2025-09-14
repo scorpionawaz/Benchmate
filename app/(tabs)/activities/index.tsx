@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Animated, FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 type Post = { 
@@ -17,21 +17,21 @@ const initial: Post[] = [
   { id: 'p2', author: 'Zara', avatar: 'https://i.pravatar.cc/100?img=28', image: 'https://picsum.photos/seed/act2/700/500', caption: 'My rain poem ☔️', likes: 25, comments: [{ id: 'c2', by: 'Ishaan', text: 'Beautiful lines' }] },
 ];
 
-// 🆕 PostCard Component
+// Post card
 function PostCard({ item, onLike, onExplain }: { item: Post; onLike: (id: string) => void; onExplain: (p: Post) => void }) {
   const glowAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    // animation duration depends on likes
-    const duration = Math.max(4000 - item.likes * 80, 800); // more likes = faster
-
-    Animated.loop(
+    const duration = Math.max(4000 - item.likes * 80, 800);
+    const loop = Animated.loop(
       Animated.sequence([
         Animated.timing(glowAnim, { toValue: 1, duration, useNativeDriver: false }),
         Animated.timing(glowAnim, { toValue: 0, duration, useNativeDriver: false }),
       ])
-    ).start();
-  }, [item.likes]);
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [item.likes, glowAnim]);
 
   const borderColor = glowAnim.interpolate({
     inputRange: [0, 0.5, 1],
@@ -44,22 +44,19 @@ function PostCard({ item, onLike, onExplain }: { item: Post; onLike: (id: string
         styles.card,
         {
           borderColor,
-          borderWidth: 4, // thicker border
-          shadowColor: borderColor,
+          borderWidth: 4,
+          shadowColor: '#000',
         },
       ]}
     >
-      {/* Author */}
       <View style={styles.header}>
         <Image source={{ uri: item.avatar }} style={styles.avatar} />
         <Text style={styles.author}>{item.author}</Text>
         {item.likes > 20 && <Text style={styles.trending}>🔥 Trending</Text>}
       </View>
 
-      {/* Image */}
       <Image source={{ uri: item.image }} style={styles.postImage} />
 
-      {/* Caption + Actions */}
       <View style={styles.body}>
         <Text style={styles.caption}>{item.caption}</Text>
         <View style={styles.actions}>
@@ -85,20 +82,27 @@ export default function ActivitiesFeed() {
   const [posts, setPosts] = useState<Post[]>(initial);
 
   const toggleLike = (id: string) => {
-    setPosts(p => p.map(post => post.id === id ? { ...post, likes: post.likes + 1 } : post));
+    setPosts((p) => p.map((post) => (post.id === id ? { ...post, likes: post.likes + 1 } : post)));
   };
 
   const explainWithGemini = (post: Post) => {
     alert('✨ AI explanation will appear here.');
   };
 
+  const ListHeader = () => (
+    <View style={{ paddingTop: 56, paddingBottom: 6 }}>
+      <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+        <Text style={{ fontSize: 18, fontWeight: '700', color: '#0b1220' }}>Feed</Text>
+      </View>
+    </View>
+  );
+
   return (
-    <FlatList 
-      data={posts} 
-      keyExtractor={p => p.id} 
-      renderItem={({ item }) => (
-        <PostCard item={item} onLike={toggleLike} onExplain={explainWithGemini} />
-      )}
+    <FlatList
+      data={posts}
+      keyExtractor={(p) => p.id}
+      renderItem={({ item }) => <PostCard item={item} onLike={toggleLike} onExplain={explainWithGemini} />}
+      ListHeaderComponent={ListHeader}
       contentContainerStyle={{ paddingVertical: 12 }}
     />
   );

@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, RefreshControl, TouchableOpacity, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-// TODO: replace with real storage/API fetch
+import { useEffect, useState } from 'react';
+import { FlatList, Image, RefreshControl, Text, TouchableOpacity, View } from 'react-native';
+
 type Task = { id: string; title: string; description: string; subject: string; due: string; cover?: string };
 
 export default function TasksFeed() {
@@ -13,8 +13,6 @@ export default function TasksFeed() {
   }, []);
 
   const load = async () => {
-    // fetch tasks assigned by teacher
-    // Placeholder data for UI realism
     setTasks([
       { id: 't1', title: 'Write a poem on Rain', description: '16 lines, use rhyme scheme ABAB', subject: 'English', due: 'Tomorrow', cover: 'https://picsum.photos/seed/poem/600/360' },
       { id: 't2', title: 'Photosynthesis Meme', description: 'Create a meme explaining photosynthesis', subject: 'Biology', due: 'Friday', cover: 'https://picsum.photos/seed/meme/600/360' },
@@ -44,11 +42,21 @@ export default function TasksFeed() {
     </TouchableOpacity>
   );
 
+  // Taller spacer above the heading (e.g., 18–24 for noticeable top gap)
+  const ListHeader = () => (
+    <View style={{ paddingTop: 56, paddingBottom: 6 }}>
+      <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+        <Text style={{ fontSize: 18, fontWeight: '700', color: '#0b1220' }}>Active Tasks</Text>
+      </View>
+    </View>
+  );
+
   return (
     <FlatList
       data={tasks}
       keyExtractor={(t) => t.id}
       renderItem={renderItem}
+      ListHeaderComponent={ListHeader}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       contentContainerStyle={{ paddingVertical: 8 }}
     />

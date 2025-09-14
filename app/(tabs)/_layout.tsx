@@ -2,7 +2,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useFonts } from 'expo-font';
 import { Redirect, Stack, Tabs } from 'expo-router';
-import React from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
 import { useAuth } from '../../contexts/AuthContext';
 

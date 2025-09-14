@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { View, TextInput, Text, Image, TouchableOpacity, ScrollView, Alert, Platform } from 'react-native';
-import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
+import React, { useState } from 'react';
+import { Alert, Image, Platform, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 type QuestionOption = { id: string; text: string };
 type Question = {
@@ -203,6 +203,13 @@ export default function CreateActivity() {
 
   return (
     <ScrollView contentContainerStyle={{ padding: 16, backgroundColor: '#f2f6fb' }}>
+      {/* Top spacer + centered heading (paddingTop=56 as requested) */}
+      <View style={{ paddingTop: 56, paddingBottom: 6 }}>
+        <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+          <Text style={{ fontSize: 18, fontWeight: '700', color: '#0b1220' }}>Create Post</Text>
+        </View>
+      </View>
+
       {/* Activity Description */}
       <Section title="Activity Description">
         <Input
