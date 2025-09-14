@@ -20,28 +20,25 @@ export default function TabLayout() {
   // Auth gate
   if (!isAuthenticated) return <Redirect href="/login" />;
 
-  // TEACHER FLOW: render a Stack only (no bottom tabs)
-  // - teacher is the dashboard screen file at app/(tabs)/teacher.tsx
-  // - add create screens under the teacher segment as separate files:
-  //   app/(tabs)/teacher/create-activity.tsx
-  //   app/(tabs)/teacher/create-quiz.tsx
+  // TEACHER FLOW: Stack only (no bottom tabs)
   if (userRole === 'teacher') {
     return (
       <Stack>
         <Stack.Screen name="teacher" options={{ headerShown: false }} />
+        {/* Teacher-only creation screens (accessible only in teacher flow) */}
         <Stack.Screen name="teacher/create-activity" options={{ title: 'Create Activity' }} />
         <Stack.Screen name="teacher/create-quiz" options={{ title: 'Create Quiz' }} />
       </Stack>
     );
   }
 
-  // STUDENT FLOW: render bottom tabs (no teacher routes)
+  // STUDENT FLOW: Bottom tabs (no teacher routes)
   if (userRole === 'student') {
     return (
       <Tabs
         screenOptions={{
           tabBarActiveTintColor: '#2f95dc',
-          headerStyle: { backgroundColor: '#f0f0f0' },
+          headerShown: false, // hide top headers on all student tabs
         }}
       >
         <Tabs.Screen
@@ -62,7 +59,6 @@ export default function TabLayout() {
             ),
           }}
         />
-        {/* No student-facing 'create' tab */}
         <Tabs.Screen
           name="activities"
           options={{
@@ -90,7 +86,7 @@ export default function TabLayout() {
             ),
           }}
         />
-        {/* Explicitly hide teacher screens for students */}
+        {/* Hide teacher routes for students */}
         <Tabs.Screen name="teacher" options={{ href: null }} />
         <Tabs.Screen name="teacher/create-activity" options={{ href: null }} />
         <Tabs.Screen name="teacher/create-quiz" options={{ href: null }} />

@@ -108,27 +108,69 @@ export default function TeacherScreen() {
   };
 
   // Attendance tab stays exactly the same
+  // if (activeTab === 'attendance') {
+  //   return (
+  //     <View style={styles.container}>
+  //       <View style={styles.tabContainer}>
+  //         <TouchableOpacity
+  //           style={[styles.tab, styles.inactiveTab]}
+  //           onPress={() => setActiveTab('dashboard')}
+  //         >
+  //           <Text style={styles.inactiveTabText}>Dashboard</Text>
+  //         </TouchableOpacity>
+  //         <TouchableOpacity
+  //           style={[styles.tab, styles.activeTab]}
+  //           onPress={() => setActiveTab('attendance')}
+  //         >
+  //           <Text style={styles.activeTabText}>📊 Attendance Data</Text>
+  //         </TouchableOpacity>
+  //       </View>
+  //       <AttendanceList />
+  //     </View>
+  //   );
+  // }
   if (activeTab === 'attendance') {
-    return (
-      <View style={styles.container}>
-        <View style={styles.tabContainer}>
-          <TouchableOpacity
-            style={[styles.tab, styles.inactiveTab]}
-            onPress={() => setActiveTab('dashboard')}
-          >
-            <Text style={styles.inactiveTabText}>Dashboard</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.tab, styles.activeTab]}
-            onPress={() => setActiveTab('attendance')}
-          >
-            <Text style={styles.activeTabText}>📊 Attendance Data</Text>
+  return (
+    <View style={styles.container}>
+      {/* SAME HEADER AS DASHBOARD */}
+      <View style={styles.header}>
+        <View style={styles.headerContent}>
+          <View>
+            <Text style={styles.title}>Teacher Dashboard</Text>
+            {user && (
+              <Text style={styles.welcomeText}>
+                Welcome, {user.name} (ID: {user.id})
+              </Text>
+            )}
+          </View>
+          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+            <Ionicons name="log-out-outline" size={24} color="#ff4444" />
           </TouchableOpacity>
         </View>
-        <AttendanceList />
       </View>
-    );
-  }
+
+      {/* Tab Navigation (Attendance active) */}
+      <View style={styles.tabContainer}>
+        <TouchableOpacity
+          style={[styles.tab, styles.inactiveTab]}
+          onPress={() => setActiveTab('dashboard')}
+        >
+          <Text style={styles.inactiveTabText}>Dashboard</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.tab, styles.activeTab]}
+          onPress={() => setActiveTab('attendance')}
+        >
+          <Text style={styles.activeTabText}>📊 Attendance Data</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Keep the existing list below the same header */}
+      <AttendanceList />
+    </View>
+  );
+}
+
 
   return (
     <ScrollView
